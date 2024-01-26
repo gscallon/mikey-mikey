@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  grype-check:
+  whole-enchilada:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,10 +22,7 @@ jobs:
         grype --version
 
     - name: Install k3d
-      run: |
-        curl -sSL https://get.k3d.io | bash
-        sudo mv k3d /usr/local/bin/k3d
-        k3d --version
+      run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
     
     - name: Install uds
       run: |
@@ -33,5 +30,5 @@ jobs:
         chmod 755 uds
         sudo mv uds /usr/local/bin/uds
     
-    - name: Run enchilada
+    - name: Run pipeline
       run: uds run pipeline
