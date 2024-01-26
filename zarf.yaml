@@ -1,10 +1,18 @@
 kind: ZarfPackageConfig
 metadata:
-  name: package-image
-  description: package built container image
+  name: hello-world-python-pkg
+  description: "Saying hello to the world... in python"
   version: 0.0.1
 
 components:
-  - name: packager
+  - name: hello-world
+    required: true
+    charts:
+      - name: hello-world
+        version: 0.0.1
+        namespace: hello-world
+        localPath: chart
+        valuesFiles:
+          - chart/values.yaml
     images:
-      - ttl.sh/python-example:test
+      - ttl.sh/uds-dd/python-example:test
