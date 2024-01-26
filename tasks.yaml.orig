@@ -1,0 +1,58 @@
+tasks:
+ - name: example
+   actions:
+    - description: "This is an example"
+      cmd: echo "Success"
+ - name: build-image
+   actions:
+    - description: "Build container image"
+      cmd: |
+        kaniko build . -t ttl.sh/uds-dd/python-example:test
+        kaniko push ttl.sh/uds-dd/python-example:test
+#  - name: zarf-dev-lint
+#    actions:
+#     - description: "Lint the given package for valid schema and recommended practices"
+#       cmd: | 
+#         wget https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+#         uds zarf dev lint
+ - name: zarf-package-create
+   actions:
+    - description: "Creates zarf package with built image"
+      cmd: |
+        uds zarf package create --confirm -a arm64 --sbom-out sboms/ --signing-key cosign.key
+      # cmd: uds zarf package create --confirm -o oci://ttl.sh/uds-dd/python-example
+
+ - name: scan-sbom
+   actions:
+     - description: "Scan sbom"
+       cmd: |
+        grype sbom:sboms/hello-world-python-pkg/ttl.sh_uds-dd_python-example_test.json
+# TODO: why are these sboms different
+# uds zarf tools sbom packages file:/Users/darcy/leapfrog/uds-runner-pipeline-python-hello-world/zarf-package-package-image-arm64-0.0.1.tar.zst -o json > sboms/my-sbom.json
+# grype sbom:sboms/my-sbom.json
+
+ - name: uds-core-istio-deploy
+   actions:
+    - description: "Deploys uds core with istio"
+      cmd: uds deploy oci://ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.9.2-arm64 --confirm
+
+ - name: zarf-package-deploy
+   actions:
+    - description: "Deploy the zarf package"
+      # cmd: uds zarf package deploy oci://ttl.sh/uds-dd/python-example:0.0.1 --confirm 
+      cmd: uds zarf package deploy zarf-package-hello-world-python-pkg-arm64-0.0.1.tar.zst --confirm --key cosign.pub
+#  - name: 
+#    actions:
+#     - description: 
+#       cmd:
+###
+ - name: run-all
+   actions:
+    - task: example
+    - task: build-image
+    # - task: zarf-dev-lint
+    - task: zarf-package-create
+    - task: scan-sbom
+    - task: uds-core-istio-deploy
+    - task: zarf-package-deploy
+    

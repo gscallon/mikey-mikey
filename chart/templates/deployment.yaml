@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hello-world-python
+  namespace: hello-world-python
+  labels:
+    app: hello-world-python
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: hello-world-python
+  template:
+    metadata:
+      labels:
+        app: hello-world-python
+    spec:
+      containers:
+        - name: hello-world-python
+          image: ttl.sh/uds-dd/python-example:test
+          ports:
+            - containerPort: 8080
