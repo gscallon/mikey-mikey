@@ -1,0 +1,7 @@
+includes:
+  - remote: https://gitlab.com/defense-unicorns/dashdays/uds-runner-pipeline-template/-/raw/main/tasks.yaml
+  # - remote: https://gitlab.com/defense-unicorns/dashdays/uds-runner-pipeline-template/-/raw/main/tasks.yaml
+tasks:
+  - name: pipeline
+    actions:
+      - task: remote:run-all

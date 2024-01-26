@@ -1,0 +1,10 @@
+kind: ZarfPackageConfig
+metadata:
+  name: package-image
+  description: package built container image
+  version: 0.0.1
+
+components:
+  - name: packager
+    images:
+      - ttl.sh/python-example:test
