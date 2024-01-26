@@ -31,4 +31,4 @@ jobs:
         sudo mv uds /usr/local/bin/uds
     
     - name: Run pipeline
-      run: uds run pipeline
+      run: uds run pipeline --set ARCHITECTURE=amd64 --set ZARF_PACKAGE=zarf-package-hello-world-python-pkg-amd64-0.0.1.tar.zst
