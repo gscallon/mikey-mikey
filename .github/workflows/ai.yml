@@ -1,4 +1,4 @@
-name: UDS run ai pipeline
+name: LeapFrogAI in CI
 
 on:
   workflow_dispatch:
@@ -11,12 +11,12 @@ jobs:
     - name: Checkout Repository
       uses: actions/checkout@v2
 
-    - name: Install Grype
-      run: |
-        curl -sL https://github.com/anchore/grype/releases/download/v0.74.3/grype_0.74.3_linux_amd64.tar.gz -o grype.tar.gz
-        tar -xvf grype.tar.gz
-        sudo mv ./grype /usr/local/bin/grype
-        grype --version
+    # - name: Install Grype
+    #   run: |
+    #     curl -sL https://github.com/anchore/grype/releases/download/v0.74.3/grype_0.74.3_linux_amd64.tar.gz -o grype.tar.gz
+    #     tar -xvf grype.tar.gz
+    #     sudo mv ./grype /usr/local/bin/grype
+    #     grype --version
 
     - name: Install k3d
       run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
@@ -27,5 +27,5 @@ jobs:
         chmod 755 uds
         sudo mv uds /usr/local/bin/uds
     
-    - name: Run pipeline
+    - name: Create LeapFrogAI bundle, deploy UDS dev with Istio, deploy LFAI UDS bundle
       run: uds run run-leapfrog-ai-deploy --set ARCHITECTURE=amd64
