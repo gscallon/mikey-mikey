@@ -12,7 +12,7 @@ variables:
   - name: LEAPFROG_AI_BUNDLE_PATH
     default: bundles/
   - name: LEAPFROG_AI_BUNDLE
-    default:
+    default: uds-bundle-leapfrogai-amd64-0.1.0.tar.zst
 tasks:
  - name: build-image
    actions:
@@ -57,12 +57,15 @@ tasks:
     - description: "Deploy the zarf package"
       cmd: uds zarf package deploy ${ZARF_PACKAGE} --confirm --key cosign.pub
 
- - name: leapfrog-ai-deploy
+ - name: leapfrog-ai-bundle-create
    actions:
-    - description: "Deploy leapfrog ai"
-      cmd: |
-        - uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
-        - uds deploy 
+    - description: "Create Leapfrog AI Bundle"
+      cmd: uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
+
+ - name: leapfrog-ai-bundle-deploy
+   actions:
+    - description: "Deploy Leapfrog AI Bundle"
+      cmd: uds deploy ${LEAPFROG_AI_BUNDLE_PATH}/${LEAPFROG_AI_BUNDLE} --confirm
 
  - name: run-all
    actions:
@@ -73,7 +76,14 @@ tasks:
     - task: uds-core-istio-deploy
     - task: zarf-package-deploy
 
- - name: run-all-ci
+ - name: run-predeploy
+   actions:
+    - task: build-image
+    # - task: zarf-dev-lint
+    - task: zarf-package-create
+    - task: scan-sbom
+
+ - name: run-app-zarf-package-deploy
    actions:
     - task: build-image-ci
     # - task: zarf-dev-lint
@@ -81,3 +91,9 @@ tasks:
     - task: scan-sbom
     - task: uds-core-istio-deploy
     - task: zarf-package-deploy
+
+ - name: run-leapfrog-ai-deploy
+   actions:
+    - task: uds-core-istio-deploy
+    - task: leapfrog-ai-bundle-create
+    - task: leapfrog-ai-bundle-deploy
