@@ -60,7 +60,7 @@ tasks:
  - name: leapfrog-ai-bundle-create
    actions:
     - description: "Create Leapfrog AI Bundle"
-      cmd: uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm -l=debug
+      cmd: uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
 
  - name: leapfrog-ai-bundle-deploy
    actions:
