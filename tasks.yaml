@@ -6,14 +6,14 @@ variables:
   - name: SBOM_JSON
     default: sboms/hello-world-python-pkg/ttl.sh_uds-dd_python-example_test.json
   - name: ZARF_PACKAGE
-    default: zarf-package-hello-world-python-pkg-arm64-0.0.1.tar.zst
+    default: packages/hello-world/zarf-package-hello-world-python-pkg-arm64-0.0.1.tar.zst
   - name: ARCHITECTURE
     default: arm64
+  - name: LEAPFROG_AI_BUNDLE_PATH
+    default: bundles/
+  - name: LEAPFROG_AI_BUNDLE
+    default:
 tasks:
- - name: example
-   actions:
-    - description: "This is an example"
-      cmd: echo "Success"
  - name: build-image
    actions:
     - description: "Build container image"
@@ -57,9 +57,15 @@ tasks:
     - description: "Deploy the zarf package"
       cmd: uds zarf package deploy ${ZARF_PACKAGE} --confirm --key cosign.pub
 
+ - name: leapfrog-ai-deploy
+   actions:
+    - description: "Deploy leapfrog ai"
+      cmd: |
+        - uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
+        - uds deploy 
+
  - name: run-all
    actions:
-    - task: example
     - task: build-image
     # - task: zarf-dev-lint
     - task: zarf-package-create
@@ -69,7 +75,6 @@ tasks:
 
  - name: run-all-ci
    actions:
-    - task: example
     - task: build-image-ci
     # - task: zarf-dev-lint
     - task: zarf-package-create
