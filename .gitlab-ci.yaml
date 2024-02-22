@@ -1,0 +1,7 @@
+stage: whole-enchilada
+
+extra-cheese:
+  stage: whole-enchilada
+  image: ghcr.io/justin-lf/kaniko:uds
+  scripts: 
+    - uds run pipeline

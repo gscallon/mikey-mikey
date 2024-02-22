@@ -1,0 +1,18 @@
+kind: ZarfPackageConfig
+metadata:
+  name: hello-world-python-pkg
+  description: "Saying hello to the world... in python"
+  version: 0.0.1
+
+components:
+  - name: hello-world
+    required: true
+    charts:
+      - name: hello-world
+        version: 0.0.1
+        namespace: hello-world
+        localPath: chart
+        valuesFiles:
+          - chart/values.yaml
+    images:
+      - ttl.sh/uds-dd/python-example:test

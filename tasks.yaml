@@ -1,7 +1,99 @@
-includes:
-  - remote: https://gitlab.com/defense-unicorns/dashdays/uds-runner-pipeline-template/-/raw/main/tasks.yaml
-  # - remote: https://gitlab.com/defense-unicorns/dashdays/uds-runner-pipeline-template/-/raw/main/tasks.yaml
+variables:
+  - name: REGISTRY
+    default: ttl.sh/uds-dd/python-example
+  - name: TAG
+    default: test
+  - name: SBOM_JSON
+    default: sboms/hello-world-python-pkg/ttl.sh_uds-dd_python-example_test.json
+  - name: ZARF_PACKAGE
+    default: packages/hello-world/zarf-package-hello-world-python-pkg-arm64-0.0.1.tar.zst
+  - name: ARCHITECTURE
+    default: arm64
+  - name: LEAPFROG_AI_BUNDLE_PATH
+    default: bundles/
+  - name: LEAPFROG_AI_BUNDLE
+    default: uds-bundle-leapfrogai-amd64-0.1.0.tar.zst
 tasks:
-  - name: pipeline
-    actions:
-      - task: remote:run-all
+ - name: build-image
+   actions:
+    - description: "Build container image"
+      cmd: |
+        docker build . -t ${REGISTRY}:${TAG}
+        docker push ${REGISTRY}:${TAG}
+ - name: build-image-ci
+   actions:
+    - description: "Build container image"
+      cmd: |
+        /kaniko/executor --dockerfile "./Dockerfile" --destination "${REGISTRY}:${TAG}" --context "./"
+#  - name: zarf-dev-lint
+#    actions:
+#     - description: "Lint the given package for valid schema and recommended practices"
+#       cmd: | 
+#         wget https://raw.githubusercontent.com/defenseunicorns/zarf/main/zarf.schema.json
+#         uds zarf dev lint
+ - name: zarf-package-create
+   actions:
+    - description: "Creates zarf package with built image"
+      cmd: |
+        uds zarf package create --confirm -a ${ARCHITECTURE} --sbom-out sboms/ --signing-key cosign.key
+      # cmd: uds zarf package create --confirm -o oci://ttl.sh/uds-dd/python-example
+
+ - name: scan-sbom
+   actions:
+     - description: "Scan sbom"
+       cmd: |
+        grype sbom:${SBOM_JSON}
+# TODO: why are these sboms different
+# uds zarf tools sbom packages file:/Users/darcy/leapfrog/uds-runner-pipeline-python-hello-world/zarf-package-package-image-arm64-0.0.1.tar.zst -o json > sboms/my-sbom.json
+# grype sbom:sboms/my-sbom.json
+
+ - name: uds-core-istio-deploy
+   actions:
+    - description: "Deploys uds core with istio"
+      cmd: uds deploy oci://ghcr.io/defenseunicorns/packages/uds/bundles/k3d-core-istio-dev:0.9.2-${ARCHITECTURE} --confirm
+
+ - name: zarf-package-deploy
+   actions:
+    - description: "Deploy the zarf package"
+      cmd: uds zarf package deploy ${ZARF_PACKAGE} --confirm --key cosign.pub
+
+ - name: leapfrog-ai-bundle-create
+   actions:
+    - description: "Create Leapfrog AI Bundle"
+      cmd: ls "$directory"/uds-bundle-*.tar.zst 1> /dev/null 2>&1 && echo "Found existing bundle for this version in /bundles. Proceeding to deployment tasks." || uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
+
+ - name: leapfrog-ai-bundle-deploy
+   actions:
+    - description: "Deploy Leapfrog AI Bundle"
+      cmd: uds deploy ${LEAPFROG_AI_BUNDLE_PATH}/${LEAPFROG_AI_BUNDLE} --confirm
+
+ - name: run-all
+   actions:
+    - task: build-image
+    # - task: zarf-dev-lint
+    - task: zarf-package-create
+    - task: scan-sbom
+    - task: uds-core-istio-deploy
+    - task: zarf-package-deploy
+
+ - name: run-predeploy
+   actions:
+    - task: build-image
+    # - task: zarf-dev-lint
+    - task: zarf-package-create
+    - task: scan-sbom
+
+ - name: run-app-zarf-package-deploy
+   actions:
+    - task: build-image-ci
+    # - task: zarf-dev-lint
+    - task: zarf-package-create
+    - task: scan-sbom
+    - task: uds-core-istio-deploy
+    - task: zarf-package-deploy
+
+ - name: run-leapfrog-ai-deploy
+   actions:
+    - task: leapfrog-ai-bundle-create
+    - task: uds-core-istio-deploy
+    - task: leapfrog-ai-bundle-deploy

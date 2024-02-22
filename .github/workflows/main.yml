@@ -1,0 +1,34 @@
+name: UDS run pipeline
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  whole-enchilada:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Install Grype
+      run: |
+        curl -sL https://github.com/anchore/grype/releases/download/v0.74.3/grype_0.74.3_linux_amd64.tar.gz -o grype.tar.gz
+        tar -xvf grype.tar.gz
+        sudo mv ./grype /usr/local/bin/grype
+        grype --version
+
+    - name: Install k3d
+      run: curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | TAG=v5.6.0 bash
+    
+    - name: Install uds
+      run: |
+        curl -sL https://github.com/defenseunicorns/uds-cli/releases/download/v0.6.2/uds-cli_v0.6.2_Linux_amd64 -o uds
+        chmod 755 uds
+        sudo mv uds /usr/local/bin/uds
+    
+    - name: Run pipeline
+      run: uds run pipeline --set ARCHITECTURE=amd64 --set ZARF_PACKAGE=zarf-package-hello-world-python-pkg-amd64-0.0.1.tar.zst
