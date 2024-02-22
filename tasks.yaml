@@ -60,7 +60,7 @@ tasks:
  - name: leapfrog-ai-bundle-create
    actions:
     - description: "Create Leapfrog AI Bundle"
-      cmd: uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
+      cmd: ls "$directory"/uds-bundle-*.tar.zst 1> /dev/null 2>&1 && echo "Found existing bundle for this version in /bundles. Proceeding to deployment tasks." || uds create ${LEAPFROG_AI_BUNDLE_PATH} --confirm
 
  - name: leapfrog-ai-bundle-deploy
    actions:
@@ -94,6 +94,6 @@ tasks:
 
  - name: run-leapfrog-ai-deploy
    actions:
-    - task: uds-core-istio-deploy
     - task: leapfrog-ai-bundle-create
+    - task: uds-core-istio-deploy
     - task: leapfrog-ai-bundle-deploy
