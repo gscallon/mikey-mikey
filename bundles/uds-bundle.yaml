@@ -14,6 +14,7 @@ packages:
     ref: dev3
 
   # Model for generic chat
-  - name: llama-cpp
-    repository: ghcr.io/defenseunicorns/packages/leapfrogai/llama-cpp
-    ref: dev
+  - name: llama-cpp-python
+    # repository: ghcr.io/defenseunicorns/packages/leapfrogai/llama-cpp
+    repository: ghcr.io/defenseunicorns/leapfrogai/llama-cpp-python
+    ref: dev-amd64
