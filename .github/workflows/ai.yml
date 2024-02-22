@@ -1,4 +1,4 @@
-name: UDS run pipeline
+name: UDS run ai pipeline
 
 on:
   workflow_dispatch:
